@@ -6,11 +6,10 @@
 
 #include "ngx_global.h"  //一些全局/通用定义
 
-//类名可以遵照一定的命名规则规范，比如老师这里，第一个字母是C，后续的单词首字母大写
+
 class CConfig
 {
-//---------------------------------------------------
-//这段代码老师在《c++从入门到精通》 多线程这章老师提过 单例设计模式，就是如下这些代码，大家即便没学过，也可以现在学
+
 private:
 	CConfig();
 public:
@@ -40,7 +39,7 @@ public:
 		{
 			if (CConfig::m_instance)
 			{						
-				delete CConfig::m_instance;				
+				delete CConfig::m_instance;
 				CConfig::m_instance = NULL;				
 			}
 		}
