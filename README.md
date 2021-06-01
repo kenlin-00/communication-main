@@ -61,7 +61,7 @@ public:
 		}
 		return m_instance;
 	}
-	//定义一个嵌套列，专门为CConfig服务，还用于释放 m_instance
+	//定义一个嵌套列，专门为CConfig服务，用于释放 m_instance
 	class CGarhuishou {
 	public:
 		~CGarhuishou() {
@@ -75,7 +75,7 @@ public:
 };
 ```
 
-可以通过打印地址发现两个对象答应的地址是一样的
+可以通过打印地址发现两个对象打印的地址是一样的
 
 ```cpp
 nt main(int argc,char *const *argv) {
@@ -146,6 +146,7 @@ int strcasecmp (const char *s1, const char *s2);
 
 > 以上代码见 tongxin-nginx-01.tar.gz
 
+---------------------
 
 ### 设置进程名称
 
