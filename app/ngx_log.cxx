@@ -53,20 +53,18 @@ ngx_log_t   ngx_log;
     */
 void ngx_log_stderr(int err, const char *fmt, ...)
 {    
-    va_list args;                        //创建一个va_list类型变量
-    u_char  errstr[NGX_MAX_ERROR_STR+1]; //2048  -- ************  +1是我自己填的，感谢官方写法有点小瑕疵，所以动手调整一下
+    va_list args;                        
+    u_char  errstr[NGX_MAX_ERROR_STR+1]; 
     u_char  *p,*last;
 
-    memset(errstr,0,sizeof(errstr));     //我个人加的，这块有必要加，至少在va_end处理之前有必要，否则字符串没有结束标记不行的；***************************
+    memset(errstr,0,sizeof(errstr));     
 
-    last = errstr + NGX_MAX_ERROR_STR;        //last指向整个buffer最后去了【指向最后一个有效位置的后面也就是非有效位】，作为一个标记，防止输出内容超过这么长,
-                                                    //其实我认为这有问题，所以我才在上边errstr[NGX_MAX_ERROR_STR+1]; 给加了1
-                                              //比如你定义 char tmp[2]; 你如果last = tmp+2，那么last实际指向了tmp[2]，而tmp[2]在使用中是无效的
+    last = errstr + NGX_MAX_ERROR_STR;        
                                                 
-    p = ngx_cpymem(errstr, "nginx: ", 7);     //p指向"nginx: "之后    
+    p = ngx_cpymem(errstr, "nginx: ", 7);         
     
     va_start(args, fmt); //使args指向起始的参数
-    p = ngx_vslprintf(p,last,fmt,args); //组合出这个字符串保存在errstr里
+    p = ngx_vslprintf(p,last,fmt,args); 
     va_end(args);        //释放args
 
     if (err)  //如果错误代码不是0，表示有错误发生
@@ -75,7 +73,7 @@ void ngx_log_stderr(int err, const char *fmt, ...)
         p = ngx_log_errno(p, last, err);
     }
     
-    //若位置不够，那换行也要硬插入到末尾，哪怕覆盖到其他内容    
+ 
     if (p >= (last - 1))
     {
         p = (last - 1) - 1; //把尾部空格留出来，这里感觉nginx处理的似乎就不对 
@@ -83,25 +81,20 @@ void ngx_log_stderr(int err, const char *fmt, ...)
     }
     *p++ = '\n'; //增加个换行符    
     
-    //往标准错误【一般是屏幕】输出信息    
+   
     write(STDERR_FILENO,errstr,p - errstr); //三章七节讲过，这个叫标准错误，一般指屏幕
 
     if(ngx_log.fd > STDERR_FILENO) //如果这是个有效的日志文件，本条件肯定成立，此时也才有意义将这个信息写到日志文件
     {
         //因为上边已经把err信息显示出来了，所以这里就不要显示了，否则显示重复了
         err = 0;    //不要再次把错误信息弄到字符串里，否则字符串里重复了
-        p--;*p = 0; //把原来末尾的\n干掉，因为到ngx_log_err_core中还会加这个\n 
+        p--;*p = 0;  
         ngx_log_error_core(NGX_LOG_STDERR,err,(const char *)errstr); 
     }    
     return;
 }
 
-//----------------------------------------------------------------------------------------------------------------------
-//描述：给一段内存，一个错误编号，我要组合出一个字符串，形如：   (错误编号: 错误原因)，放到给的这段内存中去
-//     这个函数我改造的比较多，和原始的nginx代码多有不同
-//buf：是个内存，要往这里保存数据
-//last：放的数据不要超过这里
-//err：错误编号，我们是要取得这个错误编号对应的错误字符串，保存到buffer中
+
 u_char *ngx_log_errno(u_char *buf, u_char *last, int err)
 {
     //以下代码是我自己改造，感觉作者的代码有些瑕疵
@@ -127,12 +120,7 @@ u_char *ngx_log_errno(u_char *buf, u_char *last, int err)
     return buf;
 }
 
-//----------------------------------------------------------------------------------------------------------------------
-//往日志文件中写日志，代码中有自动加换行符，所以调用时字符串不用刻意加\n；
-//    日过定向为标准错误，则直接往屏幕上写日志【比如日志文件打不开，则会直接定位到标准错误，此时日志就打印到屏幕上，参考ngx_log_init()】
-//level:一个等级数字，我们把日志分成一些等级，以方便管理、显示、过滤等等，如果这个等级数字比配置文件中的等级数字"LogLevel"大，那么该条信息不被写到日志文件中
-//err：是个错误代码，如果不是0，就应该转换成显示对应的错误信息,一起写到日志文件中，
-//ngx_log_error_core(5,8,"这个XXX工作的有问题,显示的结果是=%s","YYYY");
+
 void ngx_log_error_core(int level,  int err, const char *fmt, ...)
 {
     u_char  *last;
@@ -222,8 +210,7 @@ void ngx_log_error_core(int level,  int err, const char *fmt, ...)
     return;
 }
 
-//----------------------------------------------------------------------------------------------------------------------
-//描述：日志初始化，就是把日志文件打开 ，注意这里边涉及到释放的问题，如何解决？
+
 void ngx_log_init()
 {
     u_char *plogname = NULL;

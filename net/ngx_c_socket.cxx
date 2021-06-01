@@ -127,8 +127,7 @@ CSocekt::~CSocekt()
 //关闭退出函数[子进程中执行]
 void CSocekt::Shutdown_subproc()
 {
-    //(1)把干活的线程停止掉，注意 系统应该尝试通过设置 g_stopEvent = 1来 开始让整个项目停止
-    //(2)用到信号量的，可能还需要调用一下sem_post
+
     if(sem_post(&m_semEventSendQueue)==-1)  //让ServerSendQueueThread()流程走下来干活
     {
          ngx_log_stderr(0,"CSocekt::Shutdown_subproc()中sem_post(&m_semEventSendQueue)失败.");
@@ -147,11 +146,11 @@ void CSocekt::Shutdown_subproc()
 	}
 	m_threadVector.clear();
 
-    //(3)队列相关
+
     clearMsgSendQueue();
     clearconnection();
     
-    //(4)多线程相关    
+    
     pthread_mutex_destroy(&m_connectionMutex);          //连接相关互斥量释放
     pthread_mutex_destroy(&m_sendMessageQueueMutex);    //发消息互斥量释放    
     pthread_mutex_destroy(&m_recyconnqueueMutex);       //连接回收队列相关的互斥量释放

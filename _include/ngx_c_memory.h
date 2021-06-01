@@ -23,7 +23,7 @@ public:
 			//锁
 			if(m_instance == NULL)
 			{				
-				m_instance = new CMemory(); //第一次调用不应该放在线程中，应该放在主进程中，以免和其他线程调用冲突从而导致同时执行两次new CMemory()
+				m_instance = new CMemory(); 
 				static CGarhuishou cl; 
 			}
 			//放锁

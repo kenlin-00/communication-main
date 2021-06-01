@@ -30,7 +30,7 @@ void CSocekt::ngx_event_accept(lpngx_connection_t oldc)
     int                err;
     int                level;
     int                s;
-    static int         use_accept4 = 1;   //我们先认为能够使用accept4()函数
+    static int         use_accept4 = 1;   
     lpngx_connection_t newc;              //代表连接池中的一个连接【注意这是指针】
     
     //ngx_log_stderr(0,"这是几个\n"); 这里会惊群，也就是说，epoll技术本身有惊群的问题
@@ -57,7 +57,7 @@ void CSocekt::ngx_event_accept(lpngx_connection_t oldc)
             //对accept、send和recv而言，事件未发生时errno通常被设置成EAGAIN（意为“再来一次”）或者EWOULDBLOCK（意为“期待阻塞”）
             if(err == EAGAIN) //accept()没准备好，这个EAGAIN错误EWOULDBLOCK是一样的
             {
-                //除非你用一个循环不断的accept()取走所有的连接，不然一般不会有这个错误【我们这里只取一个连接，也就是accept()一次】
+
                 return ;
             } 
             level = NGX_LOG_ALERT;

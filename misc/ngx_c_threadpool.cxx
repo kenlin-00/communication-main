@@ -75,7 +75,7 @@ bool CThreadPool::Create(int threadNum)
         }        
     } //end for
 
-    //我们必须保证每个线程都启动并运行到pthread_cond_wait()，本函数才返回，只有这样，这几个线程才能进行后续的正常工作 
+
     std::vector<ThreadItem*>::iterator iter;
 lblfor:
     for(iter = m_threadVector.begin(); iter != m_threadVector.end(); iter++)
@@ -108,8 +108,6 @@ void* CThreadPool::ThreadFunc(void* threadData)
         if(err != 0) ngx_log_stderr(err,"CThreadPool::ThreadFunc()中pthread_mutex_lock()失败，返回的错误码为%d!",err);//有问题，要及时报告
         
 
-        //以下这行程序写法技巧十分重要，必须要用while这种写法，
- //pthread_cond_wait()函数，如果只有一条消息 唤醒了两个线程干活，那么其中有一个线程拿不到消息，那如果不用while写，就会出问题，所以被惊醒后必须再次用while拿消息，拿到才走下来；
         //while( (jobbuf = g_socket.outMsgRecvQueue()) == NULL && m_shutdown == false)
         while ( (pThreadPoolObj->m_MsgRecvQueue.size() == 0) && m_shutdown == false)
         {
@@ -124,7 +122,7 @@ void* CThreadPool::ThreadFunc(void* threadData)
             //ngx_log_stderr(0,"执行了pthread_cond_wait-------------end");
         }
 
-        //能走下来的，必然是 拿到了真正的 消息队列中的数据   或者 m_shutdown == true
+
 
         /*
         jobbuf = g_socket.outMsgRecvQueue(); //从消息队列中取消息
@@ -230,8 +228,7 @@ void CThreadPool::StopAll()
     return;    
 }
 
-//--------------------------------------------------------------------------------------
-//收到一个完整消息后，入消息队列，并触发线程池中线程来处理该消息
+
 void CThreadPool::inMsgRecvQueueAndSignal(char *buf)
 {
     //互斥
@@ -295,12 +292,10 @@ void CThreadPool::Call()
     //(2)整个工程中，只在一个线程（主线程）中调用了Call，所以不存在多个线程调用Call的情形。
     if(ifallthreadbusy == false)
     {
-        //有空闲线程  ，有没有可能我这里调用   pthread_cond_signal()，但因为某个时刻线程曾经全忙过，导致本次调用 pthread_cond_signal()并没有激发某个线程的pthread_cond_wait()执行呢？
-           //我认为这种可能性不排除，这叫 唤醒丢失。如果真出现这种问题，我们如何弥补？
-        if(irmqc > 5) //我随便来个数字比如给个5吧
+
+        if(irmqc > 5) 
         {
-            //如果有空闲线程，并且 接收消息队列中超过5条信息没有被处理，则我总感觉可能真的是 唤醒丢失
-            //唤醒如果真丢失，我是否考虑这里多唤醒一次？以尝试逐渐补偿回丢失的唤醒？此法是否可行，我尚不可知，我打印一条日志【其实后来仔细相同：唤醒如果真丢失，也无所谓，因为ThreadFunc()会一直处理直到整个消息队列为空】
+            
             ngx_log_stderr(0,"CThreadPool::Call()中感觉有唤醒丢失发生，irmqc = %d!",irmqc);
 
             int err = pthread_cond_signal(&m_pthreadCond); //唤醒一个等待该条件的线程，也就是可以唤醒卡在pthread_cond_wait()的线程

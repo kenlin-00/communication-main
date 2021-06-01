@@ -7,7 +7,6 @@
 
 #include "ngx_global.h"
 
-//设置可执行程序标题相关函数：分配内存，并且把环境变量拷贝到新内存中来
 void ngx_init_setproctitle()
 {   
     //这里无需判断penvmen == NULL,有些编译器new会返回NULL，有些会报异常，但不管怎样，如果在重要的地方new失败了，你无法收场，让程序失控崩溃，助你发现问题为好； 
@@ -29,8 +28,7 @@ void ngx_init_setproctitle()
 //设置可执行程序标题
 void ngx_setproctitle(const char *title)
 {
-    //我们假设，所有的命令 行参数我们都不需要用到了，可以被随意覆盖了；
-    //注意：我们的标题长度，不会长到原始标题和原始环境变量都装不下，否则怕出问题，不处理
+
     
     //(1)计算新标题长度
     size_t ititlelen = strlen(title); 
@@ -43,7 +41,7 @@ void ngx_setproctitle(const char *title)
         return;
     }
 
-    //空间够保存标题的，够长，存得下，继续走下来    
+  
 
     //(3)设置后续的命令行参数为空，表示只有argv[]中只有一个元素了，这是好习惯；防止后续argv被滥用，因为很多判断是用argv[] == NULL来做结束标记判断的;
     g_os_argv[1] = NULL;  

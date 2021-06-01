@@ -4,7 +4,7 @@
 
 #include <pthread.h> 
 
-//本类用于自动释放互斥量，防止忘记调用pthread_mutex_unlock的情况发生
+
 
 class CLock
 {

@@ -95,11 +95,11 @@ typedef struct _STRUC_MSG_HEADER
 class CSocekt
 {
 public:
-	CSocekt();                                                            //构造函数
-	virtual ~CSocekt();                                                   //释放函数
-	virtual bool Initialize();                                            //初始化函数[父进程中执行]
-	virtual bool Initialize_subproc();                                    //初始化函数[子进程中执行]
-	virtual void Shutdown_subproc();                                      //关闭退出函数[子进程中执行]
+	CSocekt();                                                            
+	virtual ~CSocekt();                                                  
+	virtual bool Initialize();                                            
+	virtual bool Initialize_subproc();                                   
+	virtual void Shutdown_subproc();                                      
 
 public:
 	virtual void threadRecvProcFunc(char *pMsgBuf);                       //处理客户端请求，虚函数，因为将来可以考虑自己来写子类继承本类
@@ -117,49 +117,49 @@ protected:
 	void msgSend(char *psendbuf);                                         //把数据扔到待发送对列中 
 
 private:	
-	void ReadConf();                                                      //专门用于读各种配置项	
-	bool ngx_open_listening_sockets();                                    //监听必须的端口【支持多个端口】
-	void ngx_close_listening_sockets();                                   //关闭监听套接字
-	bool setnonblocking(int sockfd);                                      //设置非阻塞套接字	
+	void ReadConf();                                                   	
+	bool ngx_open_listening_sockets();                                    
+	void ngx_close_listening_sockets();                                   
+	bool setnonblocking(int sockfd);                                    
 
 	//一些业务处理函数handler
-	void ngx_event_accept(lpngx_connection_t oldc);                       //建立新连接
-	void ngx_read_request_handler(lpngx_connection_t pConn);              //设置数据来时的读处理函数
-	void ngx_write_request_handler(lpngx_connection_t pConn);             //设置数据发送时的写处理函数
-	void ngx_close_connection(lpngx_connection_t pConn);                  //通用连接关闭函数，资源用这个函数释放【因为这里涉及到好几个要释放的资源，所以写成函数】
+	void ngx_event_accept(lpngx_connection_t oldc);                       
+	void ngx_read_request_handler(lpngx_connection_t pConn);              
+	void ngx_write_request_handler(lpngx_connection_t pConn);             
+	void ngx_close_connection(lpngx_connection_t pConn);                
 
-	ssize_t recvproc(lpngx_connection_t pConn,char *buff,ssize_t buflen); //接收从客户端来的数据专用函数
-	void ngx_wait_request_handler_proc_p1(lpngx_connection_t pConn);      //包头收完整后的处理，我们称为包处理阶段1：写成函数，方便复用	                                                                   
-	void ngx_wait_request_handler_proc_plast(lpngx_connection_t pConn);   //收到一个完整包后的处理，放到一个函数中，方便调用	
-	void clearMsgSendQueue();                                             //处理发送消息队列  
+	ssize_t recvproc(lpngx_connection_t pConn,char *buff,ssize_t buflen); 
+	void ngx_wait_request_handler_proc_p1(lpngx_connection_t pConn);                                                       
+	void ngx_wait_request_handler_proc_plast(lpngx_connection_t pConn);   
+	void clearMsgSendQueue();                                             
 
-	ssize_t sendproc(lpngx_connection_t c,char *buff,ssize_t size);       //将数据发送到客户端 
+	ssize_t sendproc(lpngx_connection_t c,char *buff,ssize_t size);      
 
 	//获取对端信息相关                                              
-	size_t ngx_sock_ntop(struct sockaddr *sa,int port,u_char *text,size_t len);  //根据参数1给定的信息，获取地址端口字符串，返回这个字符串的长度
+	size_t ngx_sock_ntop(struct sockaddr *sa,int port,u_char *text,size_t len);  
 
 	//连接池 或 连接 相关
-	void initconnection();                                                //初始化连接池
-	void clearconnection();                                               //回收连接池
-	lpngx_connection_t ngx_get_connection(int isock);                     //从连接池中获取一个空闲连接
-	void ngx_free_connection(lpngx_connection_t pConn);                   //归还参数pConn所代表的连接到到连接池中	
-	void inRecyConnectQueue(lpngx_connection_t pConn);                    //将要回收的连接放到一个队列中来
+	void initconnection();                                               
+	void clearconnection();                                               
+	lpngx_connection_t ngx_get_connection(int isock);                    
+	void ngx_free_connection(lpngx_connection_t pConn);                  
+	void inRecyConnectQueue(lpngx_connection_t pConn);                  
 
 	//线程相关函数
-	static void* ServerSendQueueThread(void *threadData);                 //专门用来发送数据的线程
-	static void* ServerRecyConnectionThread(void *threadData);            //专门用来回收连接的线程
+	static void* ServerSendQueueThread(void *threadData);                
+	static void* ServerRecyConnectionThread(void *threadData);           
 	
 protected:
 	//一些和网络通讯有关的成员变量
-	size_t                         m_iLenPkgHeader;                       //sizeof(COMM_PKG_HEADER);		
-	size_t                         m_iLenMsgHeader;                       //sizeof(STRUC_MSG_HEADER);
+	size_t                         m_iLenPkgHeader;                      	
+	size_t                         m_iLenMsgHeader;                       
 	
 private:
 	struct ThreadItem   
     {
-        pthread_t   _Handle;                                              //线程句柄
-        CSocekt     *_pThis;                                              //记录线程池的指针	
-        bool        ifrunning;                                            //标记是否正式启动起来，启动起来后，才允许调用StopAll()来释放
+        pthread_t   _Handle;                                              
+        CSocekt     *_pThis;                                            
+        bool        ifrunning;                                          
 
         //构造函数
         ThreadItem(CSocekt *pthis):_pThis(pthis),ifrunning(false){}                             
@@ -168,37 +168,36 @@ private:
     };
 
 
-	int                            m_worker_connections;                  //epoll连接的最大项数
-	int                            m_ListenPortCount;                     //所监听的端口数量
-	int                            m_epollhandle;                         //epoll_create返回的句柄
+	int                            m_worker_connections;                
+	int                            m_ListenPortCount;                     
+	int                            m_epollhandle;                         
 
 	//和连接池有关的
-	std::list<lpngx_connection_t>  m_connectionList;                      //连接列表【连接池】
-	std::list<lpngx_connection_t>  m_freeconnectionList;                  //空闲连接列表【这里边装的全是空闲的连接】
-	std::atomic<int>               m_total_connection_n;                  //连接池总连接数
-	std::atomic<int>               m_free_connection_n;                   //连接池空闲连接数
-	pthread_mutex_t                m_connectionMutex;                     //连接相关互斥量，互斥m_freeconnectionList，m_connectionList
-	pthread_mutex_t                m_recyconnqueueMutex;                  //连接回收队列相关的互斥量
-	std::list<lpngx_connection_t>  m_recyconnectionList;                  //将要释放的连接放这里
-	std::atomic<int>               m_totol_recyconnection_n;              //待释放连接队列大小
-	int                            m_RecyConnectionWaitTime;              //等待这么些秒后才回收连接
+	std::list<lpngx_connection_t>  m_connectionList;                      
+	std::list<lpngx_connection_t>  m_freeconnectionList;                  
+	std::atomic<int>               m_total_connection_n;                 
+	std::atomic<int>               m_free_connection_n;             
+	pthread_mutex_t                m_connectionMutex;                     
+	pthread_mutex_t                m_recyconnqueueMutex;               
+	std::list<lpngx_connection_t>  m_recyconnectionList;              
+	std::atomic<int>               m_totol_recyconnection_n;         
+	int                            m_RecyConnectionWaitTime;              
 
 
-	//lpngx_connection_t             m_pfree_connections;                //空闲连接链表头，连接池中总是有某些连接被占用，为了快速在池中找到一个空闲的连接，我把空闲的连接专门用该成员记录;
-	                                                                        //【串成一串，其实这里指向的都是m_pconnections连接池里的没有被使用的成员】
+	//lpngx_connection_t             m_pfree_connections;               
 	
 	
 	
-	std::vector<lpngx_listening_t> m_ListenSocketList;                    //监听套接字队列
-	struct epoll_event             m_events[NGX_MAX_EVENTS];              //用于在epoll_wait()中承载返回的所发生的事件
+	std::vector<lpngx_listening_t> m_ListenSocketList;                   
+	struct epoll_event             m_events[NGX_MAX_EVENTS];             
 
 	//消息队列
-	std::list<char *>              m_MsgSendQueue;                        //发送数据消息队列
-	std::atomic<int>               m_iSendMsgQueueCount;                  //发消息队列大小
+	std::list<char *>              m_MsgSendQueue;                       
+	std::atomic<int>               m_iSendMsgQueueCount;                 
 	//多线程相关
-	std::vector<ThreadItem *>      m_threadVector;                        //线程 容器，容器里就是各个线程了 	
-	pthread_mutex_t                m_sendMessageQueueMutex;               //发消息队列互斥量 
-	sem_t                          m_semEventSendQueue;                   //处理发消息线程相关的信号量 
+	std::vector<ThreadItem *>      m_threadVector;                        	
+	pthread_mutex_t                m_sendMessageQueueMutex;               
+	sem_t                          m_semEventSendQueue;                   
 	
 };
 

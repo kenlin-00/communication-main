@@ -23,10 +23,9 @@
 #include "ngx_c_memory.h"
 #include "ngx_c_lockmutex.h"  //自动释放互斥量的一个类
 
-//来数据时候的处理，当连接上有数据来的时候，本函数会被ngx_epoll_process_events()所调用  ,官方的类似函数为ngx_http_wait_request_handler();
+
 void CSocekt::ngx_read_request_handler(lpngx_connection_t pConn)
 {  
-    //收包，注意我们用的第二个和第三个参数，我们用的始终是这两个参数，因此我们必须保证 c->precvbuf指向正确的收包位置，保证c->irecvlen指向正确的收包宽度
     ssize_t reco = recvproc(pConn,pConn->precvbuf,pConn->irecvlen); 
     if(reco <= 0)  
     {
@@ -97,7 +96,7 @@ void CSocekt::ngx_read_request_handler(lpngx_connection_t pConn)
     return;
 }
 
-//接收数据专用函数--引入这个函数是为了方便，如果断线，错误之类的，这里直接 释放连接池中连接，然后直接关闭socket，以免在其他函数中还要重复的干这些事
+
 ssize_t CSocekt::recvproc(lpngx_connection_t c,char *buff,ssize_t buflen)  //ssize_t是有符号整型，在32位机器上等同与int，在64位机器上等同与long int，size_t就是无符号型的ssize_t
 {
     ssize_t n;
@@ -105,8 +104,7 @@ ssize_t CSocekt::recvproc(lpngx_connection_t c,char *buff,ssize_t buflen)  //ssi
     n = recv(c->fd, buff, buflen, 0); //recv()系统函数， 最后一个参数flag，一般为0；     
     if(n == 0)
     {
-        //客户端关闭【应该是正常完成了4次挥手】，我这边就直接回收连接，关闭socket即可 
-        //ngx_log_stderr(0,"连接被客户端正常关闭[4路挥手关闭]！");
+
         //ngx_close_connection(c);
         if(close(c->fd) == -1)
         {
@@ -125,9 +123,7 @@ ssize_t CSocekt::recvproc(lpngx_connection_t c,char *buff,ssize_t buflen)  //ssi
             ngx_log_stderr(errno,"CSocekt::recvproc()中errno == EAGAIN || errno == EWOULDBLOCK成立，出乎我意料！");//epoll为LT模式不应该出现这个返回值，所以直接打印出来瞧瞧
             return -1; //不当做错误处理，只是简单返回
         }
-        //EINTR错误的产生：当阻塞于某个慢系统调用的一个进程捕获某个信号且相应信号处理函数返回时，该系统调用可能返回一个EINTR错误。
-        //例如：在socket服务器端，设置了信号捕获机制，有子进程，当在父进程阻塞于慢系统调用时由父进程捕获到了一个有效信号时，内核会致使accept返回一个EINTR错误(被中断的系统调用)。
-        if(errno == EINTR)  //这个不算错误，是我参考官方nginx，官方nginx这个就不算错误；
+        if(errno == EINTR)  
         {
             //我认为LT模式不该出现这个errno，而且这个其实也不是错误，所以不当做错误处理
             ngx_log_stderr(errno,"CSocekt::recvproc()中errno == EINTR成立，出乎我意料！");//epoll为LT模式不应该出现这个返回值，所以直接打印出来瞧瞧
@@ -136,7 +132,7 @@ ssize_t CSocekt::recvproc(lpngx_connection_t c,char *buff,ssize_t buflen)  //ssi
 
         //所有从这里走下来的错误，都认为异常：意味着我们要关闭客户端套接字要回收连接池中连接；
 
-        //errno参考：http://dhfapiran1.360drm.com        
+         
         if(errno == ECONNRESET)  //#define ECONNRESET 104 /* Connection reset by peer */
         {
             //如果客户端没有正常关闭socket连接，却关闭了整个运行程序【真是够粗暴无理的，应该是直接给服务器发送rst包而不是4次挥手包完成连接断开】，那么会产生这个错误            
@@ -271,10 +267,7 @@ ssize_t CSocekt::sendproc(lpngx_connection_t c,char *buff,ssize_t size)  //ssize
 
         if(n == 0)
         {
-            //send()返回0？ 一般recv()返回0表示断开,send()返回0，我这里就直接返回0吧【让调用者处理】；我个人认为send()返回0，要么你发送的字节是0，要么对端可能断开。
-            //网上找资料：send=0表示超时，对方主动关闭了连接过程
-            //我们写代码要遵循一个原则，连接断开，我们并不在send动作里处理诸如关闭socket这种动作，集中到recv那里处理，否则send,recv都处理都处理连接断开关闭socket则会乱套
-            //连接断开epoll会通知并且 recvproc()里会处理，不在这里处理
+
             return 0;
         }
 
@@ -353,9 +346,7 @@ void CSocekt::ngx_write_request_handler(lpngx_connection_t pConn)
     return;
 }
 
-//消息处理线程主函数，专门处理各种接收到的TCP消息
-//pMsgBuf：发送过来的消息缓冲区，消息本身是自解释的，通过包头可以计算整个包长
-//         消息本身格式【消息头+包头+包体】 
+
 void CSocekt::threadRecvProcFunc(char *pMsgBuf)
 {   
     return;

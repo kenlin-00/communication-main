@@ -13,9 +13,7 @@
 //只用于本文件的一些函数声明就放在本文件中
 static u_char *ngx_sprintf_num(u_char *buf, u_char *last, uint64_t ui64,u_char zero, uintptr_t hexadecimal, uintptr_t width);
 
-//----------------------------------------------------------------------------------------------------------------------
-//对于 nginx 自定义的数据结构进行标准格式化输出,就像 printf,vprintf 一样，我们顺道学习写这类函数到底内部是怎么实现的
-//该函数只不过相当于针对ngx_vslprintf()函数包装了一下，所以，直接研究ngx_vslprintf()即可
+
 u_char *ngx_slprintf(u_char *buf, u_char *last, const char *fmt, ...) 
 {
     va_list   args;
@@ -27,8 +25,7 @@ u_char *ngx_slprintf(u_char *buf, u_char *last, const char *fmt, ...)
     return p;
 }
 
-//----------------------------------------------------------------------------------------------------------------------
-//和上边的ngx_snprintf非常类似
+
 u_char * ngx_snprintf(u_char *buf, size_t max, const char *fmt, ...)   //类printf()格式化函数，比较安全，max指明了缓冲区结束位置
 {
     u_char   *p;

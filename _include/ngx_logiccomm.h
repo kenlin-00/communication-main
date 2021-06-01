@@ -11,7 +11,7 @@
 
 
 //结构定义------------------------------------
-#pragma pack (1) //对齐方式,1字节对齐【结构之间成员不做任何字节对齐：紧密的排列在一起】
+#pragma pack (1) 
 
 typedef struct _STRUCT_REGISTER
 {
