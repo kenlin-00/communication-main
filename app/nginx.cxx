@@ -73,28 +73,27 @@ int main(int argc, char *const *argv)
     g_os_argv = (char **) argv; //保存参数指针
 
     //全局量有必要初始化的
-    ngx_log.fd = -1;                  //-1：表示日志文件尚未打开；因为后边ngx_log_stderr要用所以这里先给-1
-    ngx_process = NGX_PROCESS_MASTER; //先标记本进程是master进程
-    ngx_reap = 0;                     //标记子进程没有发生变化
+    ngx_log.fd = -1;                  
+    ngx_process = NGX_PROCESS_MASTER; 
+    ngx_reap = 0;                     /
    
     //(2)初始化失败，就要直接退出的
-    //配置文件必须最先要，后边初始化啥的都用，所以先把配置读出来，供后续使用 
     CConfig *p_config = CConfig::GetInstance(); //单例类
     if(p_config->Load("nginx.conf") == false) //把配置文件内容载入到内存            
     {   
         ngx_log_init();    //初始化日志
         ngx_log_stderr(0,"配置文件[%s]载入失败，退出!","nginx.conf");
-        //exit(1);终止进程，在main中出现和return效果一样 ,exit(0)表示程序正常, exit(1)/exit(-1)表示程序异常退出，exit(2)表示表示系统找不到指定的文件
+
         exitcode = 2; //标记找不到文件
         goto lblexit;
     }
-    //(2.1)内存单例类可以在这里初始化，返回值不用保存
+    //(2.1)内存单例类可以在这里初始化
     CMemory::GetInstance();	
-    //(2.2)crc32校验算法单例类可以在这里初始化，返回值不用保存
+    //(2.2)crc32校验算法单例类可以在这里初始化
     CCRC32::GetInstance();
         
     //(3)一些必须事先准备好的资源，先初始化
-    ngx_log_init();             //日志初始化(创建/打开日志文件)，这个需要配置项，所以必须放配置文件载入的后边；     
+    ngx_log_init();                
         
     //(4)一些初始化函数，准备放这里        
     if(ngx_init_signals() != 0) //信号初始化
@@ -109,11 +108,11 @@ int main(int argc, char *const *argv)
     }
 
     //(5)一些不好归类的其他类别的代码，准备放这里
-    ngx_init_setproctitle();    //把环境变量搬家
+    ngx_init_setproctitle();    
 
     //------------------------------------
     //(6)创建守护进程
-    if(p_config->GetIntDefault("Daemon",0) == 1) //读配置文件，拿到配置文件中是否按守护进程方式启动的选项
+    if(p_config->GetIntDefault("Daemon",0) == 1) /
     {
         //1：按守护进程方式运行
         int cdaemonresult = ngx_daemon();
@@ -125,17 +124,17 @@ int main(int argc, char *const *argv)
         if(cdaemonresult == 1)
         {
             //这是原始的父进程
-            freeresource();   //只有进程退出了才goto到 lblexit，用于提醒用户进程退出了
-                              //而我现在这个情况属于正常fork()守护进程后的正常退出，不应该跑到lblexit()去执行，因为那里有一条打印语句标记整个进程的退出，这里不该限制该条打印语句；
+            freeresource();   
+                             
             exitcode = 0;
             return exitcode;  //整个进程直接在这里退出
         }
-        //走到这里，成功创建了守护进程并且这里已经是fork()出来的进程，现在这个进程做了master进程
-        g_daemonized = 1;    //守护进程标记，标记是否启用了守护进程模式，0：未启用，1：启用了
+
+        g_daemonized = 1;   
     }
 
     //(7)开始正式的主工作流程，主流程一致在下边这个函数里循环，暂时不会走下来，资源释放啥的日后再慢慢完善和考虑    
-    ngx_master_process_cycle(); //不管父进程还是子进程，正常工作期间都在这个函数里循环；
+    ngx_master_process_cycle(); 
         
     //--------------------------------------------------------------    
     //for(;;)    
@@ -166,7 +165,7 @@ void freeresource()
     //(2)关闭日志文件
     if(ngx_log.fd != STDERR_FILENO && ngx_log.fd != -1)  
     {        
-        close(ngx_log.fd); //不用判断结果了
-        ngx_log.fd = -1; //标记下，防止被再次close吧        
+        close(ngx_log.fd); 
+        ngx_log.fd = -1;        
     }
 }

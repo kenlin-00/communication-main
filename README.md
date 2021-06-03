@@ -7,6 +7,8 @@
 
 > 在 I/O 多路复用部分 以了一位网友【[王博靖](https://github.com/wangbojing/NtyTcp)】自己写的一套 Epoll 源码为入口，通过阅读源码学习了 Epoll 函数内部的实现原理，并参考其思想引入到本项目中。
 
+> 下面会将项目完成在过程中的个人详细笔记整理出来，包括代码细节和涉及到的技术原理（更新中...)
+
 ------------
 
 <!-- TOC -->
@@ -21,7 +23,13 @@
 			- [关于memset](#关于memset)
 			- [strcpy 函数和 strncpy 函数的区别](#strcpy-函数和-strncpy-函数的区别)
 			- [strcasecmp 函数](#strcasecmp-函数)
-		- [设置进程名称](#设置进程名称)
+	- [内存泄漏检测工具](#内存泄漏检测工具)
+	- [设置进程名称](#设置进程名称)
+			- [环境变量信息搬家](#环境变量信息搬家)
+			- [怎么修改进程名称](#怎么修改进程名称)
+		- [代码中一些要点笔记](#代码中一些要点笔记-1)
+			- [extern 关键字](#extern-关键字)
+			- [`delete`和`delete[]`的区别](#delete和delete的区别)
 	- [日志打印实现](#日志打印实现)
 	- [信号功能实现](#信号功能实现)
 		- [怎么创建 worker 子进程](#怎么创建-worker-子进程)
@@ -146,15 +154,70 @@ int strcasecmp (const char *s1, const char *s2);
 
 > 以上代码见 tongxin-nginx-01.tar.gz
 
----------------------
+------------------------------------------
 
-### 设置进程名称
+## 内存泄漏检测工具
+
+- Valgrind --> 检查内存管理问题
+  - memchaeck --> 用于检查程序运行的时候的内存泄漏
+
+> 需要在 config.mk 中把 DEBUG 开关打开，（可以显示更多信息） `export DEBUG = true`
+
+- memchaeck 的使用
+
+`valgrind --tool=memcheck ./nginx`
+
+可以使用下面命令完全检查内存泄漏
+
+`valgrind --tool=memcheck --leak-check=full ./nginx`
+
+详细显示，可以看到那些发生内存泄漏
+
+`valgrind --tool=memcheck --leak-check=full --show-reachable=yes --trace-children=yes ./nginx`
+
+![](https://cdn.jsdelivr.net/gh/kendall-cpp/blogPic@main/寻offer总结/内存检测工具.42jf6tm2fto0.png)
+
+## 设置进程名称
+
+更改在使用 ps 命令查看进程的时候 CMD 显示的名称，
+
+**最后结果**
+
+` ps -eo pid,ppid,sid,tty,pgrp,comm,stat,cmd | grep -E 'bash|PID|nginx' `
+
+![](https://cdn.jsdelivr.net/gh/kendall-cpp/blogPic@main/寻offer总结/更改进程名称01.2kx4t4wec5m0.png)
 
 **进程名称实际上是保存在 argc[0] 所指向的内存中**。CMD 会把 argv 所指向的命令参数全部显示出来，因为 `./nginx`是保存在 `argv[0]`中，所以 `argv[0]`改变，进程名也就改变了。
 
-> 通过将 环境变量信息 迁移至新的内存，来解决设置的进程名称的长度大于字符串 `./nginx`的长度，可能导致设置的进程名称覆盖其他参数 的问题
+> 在这里遇到了个问题，一旦设置的进程名称的长度大雨字符串 `./nginx`的长度，就可能导致设置的进程名称覆盖其他参数。
 
-修改进程名称在 `ngx_setproctitle()` 函数实现。
+#### 环境变量信息搬家
+
+由于环境变量信息也是保存在内存中的，并且**保存的位置紧紧邻 argv 所指向的内存**。所以若果设置的进程名称太长，不但会覆盖掉命令行参数，而且很可能覆盖掉环境变量所指向的内容。
+
+为此，借助了 nginx 的源码，想到了一个解决方案，大致思路是：
+
+- **重新分配一块内存**：足够容纳新的 environ 所指向的内容，把 environ 内容搬到这块内存中来。
+
+- 将以往 `argv[0]` 指向的内容替换成实际要修改的新进程名称
+
+> 在参考 nginx 中的一些代码的时候，发现一个问题，有点困惑，就是在 `ngx_init_setproctitle` 函数中有一段` ngx_alloc` 的代码来分配内存，但是没有对应的释放代码
+
+自己写了一个 `ngx_init_setproctitle` 函数，实现了重新分配一块内存，保存 environ 所指向的内存中的内容。大致逻辑如下：
+
+- 统计环境变量的长度（也就是所需要的内存的大小）
+  
+- 使用 new 来分配所需要大小的内存
+  
+- 逐个把环境变量的内容复制到这块内存，并让 `environ[i]` （环境变量指针）指向新的内存位置
+
+#### 怎么修改进程名称
+
+编写一个 `ngx_setproctitle()` 函数，但是要注意：
+
+- 要使用命令行参数必须在`ngx_setproctitle` 函数调用之前使用，否则参数会被覆盖
+
+- 设置新的进程的名称的长度不会超过 `原始的命令行参数所占内存 + 环境变量所占内存`
 
 **该函数的大致逻辑**
 
@@ -165,6 +228,23 @@ int strcasecmp (const char *s1, const char *s2);
 - 设置新的进程名称
 
 ![](https://cdn.jsdelivr.net/gh/kendall-cpp/blogPic@main/寻offer总结/通信框架-更改运行程序名.1npok0l7nujk.png)
+
+### 代码中一些要点笔记
+
+#### extern 关键字
+
+如果全局变量不在忘了件的开头定义，作用范围就只是从定义的地方到文件结束，如果在定义这个位置之前的函数引用这个全局变量，那么就应该在引用之前用关键字 extren 对这个变量作“外部变量声明”，表示这个变量是一个已经定义的外部变量。有了这个声明，变量的作用于就可以扩展到 从声明开始到本文件结束。
+
+#### `delete`和`delete[]`的区别
+
+* `delete`只会调用一次析构函数，而`delete[]`会调用每个成员的析构函数
+
+* 用`new`分配的内存用`delete`释放，用`new[]`分配的内存用`delete[]`释放
+
+假如说使用`new int[10]`来开辟一个内存空间，针对这种简单类型，使用`new`分配后不管是数组还是非数组形式释放都是可以的。他们的效果是一样的，**因为分配简单类型内存的时候，内存大小已经确定，系统可以记忆并且进行管理，在析构时，系统不会调用析构函数**。它直接通过指针可以获取实际分配的内存空间，哪怕是一个数组内存空间。
+
+
+> 以上代码见 tongxin-nginx-02.tar.gz
 
 ## 日志打印实现
 

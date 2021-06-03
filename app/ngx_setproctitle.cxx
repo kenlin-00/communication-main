@@ -9,7 +9,7 @@
 
 void ngx_init_setproctitle()
 {   
-    //这里无需判断penvmen == NULL,有些编译器new会返回NULL，有些会报异常，但不管怎样，如果在重要的地方new失败了，你无法收场，让程序失控崩溃，助你发现问题为好； 
+    /
     gp_envmem = new char[g_envneedmem]; 
     memset(gp_envmem,0,g_envneedmem);  //内存要清空防止出现问题
 
@@ -17,9 +17,9 @@ void ngx_init_setproctitle()
     //把原来的内存内容搬到新地方来
     for (int i = 0; environ[i]; i++) 
     {
-        size_t size = strlen(environ[i])+1 ; //不要拉下+1，否则内存全乱套了，因为strlen是不包括字符串末尾的\0的
-        strcpy(ptmp,environ[i]);      //把原环境变量内容拷贝到新地方【新内存】
-        environ[i] = ptmp;            //然后还要让新环境变量指向这段新内存
+        size_t size = strlen(environ[i])+1 ;
+        strcpy(ptmp,environ[i]);    
+        environ[i] = ptmp;            
         ptmp += size;
     }
     return;
@@ -37,7 +37,7 @@ void ngx_setproctitle(const char *title)
     size_t esy = g_argvneedmem + g_envneedmem; //argv和environ内存总和
     if( esy <= ititlelen)
     {
-        //你标题多长啊，我argv和environ总和都存不下？注意字符串末尾多了个 \0，所以这块判断是 <=【也就是=都算存不下】
+        
         return;
     }
 
@@ -52,7 +52,7 @@ void ngx_setproctitle(const char *title)
     ptmp += ititlelen; //跳过标题
 
     //(5)把剩余的原argv以及environ所占的内存全部清0，否则会出现在ps的cmd列可能还会残余一些没有被覆盖的内容；
-    size_t cha = esy - ititlelen;  //内存总和减去标题字符串长度(不含字符串末尾的\0)，剩余的大小，就是要memset的；
+    size_t cha = esy - ititlelen;  
     memset(ptmp,0,cha);
     return;
 }
