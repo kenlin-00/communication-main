@@ -18,7 +18,7 @@ bool CThreadPool::m_shutdown = false;    //刚开始标记整个线程池的线�
 //构造函数
 CThreadPool::CThreadPool()
 {
-    m_iRunningThreadNum = 0;  //正在运行的线程，开始给个0【注意这种写法：原子的对象给0也可以直接赋值，当整型变量来用】
+    m_iRunningThreadNum = 0;  //正在运行的线程，开始给个0
     m_iLastEmgTime = 0;       //上次报告线程不够用了的时间；
     //m_iPrintInfoTime = 0;    //上次打印参考信息的时间；
     m_iRecvMsgQueueCount = 0; //收消息队列
