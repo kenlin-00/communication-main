@@ -35,6 +35,8 @@
 		- [怎么创建 worker 子进程](#怎么创建-worker-子进程)
 	- [守护进程的实现](#守护进程的实现)
 	- [关于 Epoll的实现部分](#关于-epoll的实现部分)
+		- [如何快速从该连接池中找到一个空闲连接分配给套接字](#如何快速从该连接池中找到一个空闲连接分配给套接字)
+		- [解决TCP粘包问题](#解决tcp粘包问题)
 	- [站在巨人的肩膀上](#站在巨人的肩膀上)
 
 <!-- /TOC -->
@@ -288,7 +290,19 @@ int strcasecmp (const char *s1, const char *s2);
 
 ## 关于 Epoll的实现部分
 
-> 待更新
+源码中 `nty_epoll_rb.c` 和 `nty_epoll_inner.h` 这 2 个文件是 Epoll 相关的 3 个函数的实现文件。
+
+### 如何快速从该连接池中找到一个空闲连接分配给套接字
+
+这里是借鉴了 epoll 的实现思想
+
+- 项目中通过 `CSocekt::ngx_get_connection(int isock)` 和 `CSocekt::ngx_free_connection(lpngx_connection_t pConn)` 这两个函数来实现
+
+### 解决TCP粘包问题
+
+考虑了恶意数据包，畸形数据包问题
+
+具体实现见 `ngx_comm.h`，`ngx_c_socket_conn.cxx`文件
 
 
 ## 站在巨人的肩膀上

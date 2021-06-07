@@ -77,7 +77,7 @@ void CSocekt::initconnection()
     int ilenconnpool = sizeof(ngx_connection_t);    
     for(int i = 0; i < m_worker_connections; ++i) //先创建这么多个连接，后续不够再增加
     {
-        p_Conn = (lpngx_connection_t)p_memory->AllocMemory(ilenconnpool,true); //清理内存 , 因为这里分配内存new char，无法执行构造函数，所以如下：
+        p_Conn = (lpngx_connection_t)p_memory->AllocMemory(ilenconnpool,true); //清理内存 , 因为这里分配内存new char，无法执行构造函数
         //手工调用构造函数，因为AllocMemory里无法调用构造函数
         p_Conn = new(p_Conn) ngx_connection_t();  //定位new【不懂请百度】，释放则显式调用p_Conn->~ngx_connection_t();		
         p_Conn->GetOneToUse();
@@ -103,7 +103,7 @@ void CSocekt::clearconnection()
 	}
 }
 
-//从连接池中获取一个空闲连接【当一个客户端连接TCP进入，我希望把这个连接和我的 连接池中的 一个连接【对象】绑到一起，后续 我可以通过这个连接，把这个对象拿到，因为对象里边可以记录各种信息】
+//从连接池中获取一个空闲连接
 lpngx_connection_t CSocekt::ngx_get_connection(int isock)
 {
     //因为可能有其他线程要访问m_freeconnectionList，m_connectionList【比如可能有专门的释放线程要释放/或者主线程要释放】之类的，所以应该临界一下
@@ -169,7 +169,7 @@ lpngx_connection_t CSocekt::ngx_get_connection(int isock)
 
 
     //(3)这个值有用，所以在上边(1)中被保留，没有被清空，这里又把这个值赋回来
-    c->instance = !instance;                            //抄自官方nginx，到底有啥用，以后再说【分配内存时候，连接池里每个连接对象这个变量给的值都为1，所以这里取反应该是0【有效】；】
+    c->instance = !instance;                            
     c->iCurrsequence=iCurrsequence;++c->iCurrsequence;  //每次取用该值都增加1
 
     //wev->write = 1;  这个标记有没有 意义加，后续再研究
@@ -298,7 +298,7 @@ lblRRTD:
         {
             if(pSocketObj->m_totol_recyconnection_n > 0)
             {
-                //因为要退出，所以就得硬释放了【不管到没到时间，不管有没有其他不 允许释放的需求，都得硬释放】
+                //因为要退出，所以就得硬释放了
                 err = pthread_mutex_lock(&pSocketObj->m_recyconnqueueMutex);  
                 if(err != 0) ngx_log_stderr(err,"CSocekt::ServerRecyConnectionThread()中pthread_mutex_lock2()失败，返回的错误码为%d!",err);
 
@@ -324,10 +324,10 @@ lblRRTD:
 }
 
 
-//我们把ngx_close_accepted_connection()函数改名为让名字更通用，并从文件ngx_socket_accept.cxx迁移到本文件中，并改造其中代码，注意顺序
+//我们把ngx_close_accepted_connection()函数改名为让名字更通用，并从文件ngx_socket_accept.cxx迁移到本文件中，
 void CSocekt::ngx_close_connection(lpngx_connection_t pConn)
 {    
-    //pConn->fd = -1; //官方nginx这么写，这么写有意义；    不要这个东西，回收时不要轻易东连接里边的内容
+    //pConn->fd = -1; 
     ngx_free_connection(pConn); 
     if(close(pConn->fd) == -1)
     {
