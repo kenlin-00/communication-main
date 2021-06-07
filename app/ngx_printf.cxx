@@ -26,7 +26,7 @@ u_char *ngx_slprintf(u_char *buf, u_char *last, const char *fmt, ...)
 }
 
 
-u_char * ngx_snprintf(u_char *buf, size_t max, const char *fmt, ...)   //类printf()格式化函数，比较安全，max指明了缓冲区结束位置
+u_char * ngx_snprintf(u_char *buf, size_t max, const char *fmt, ...)   
 {
     u_char   *p;
     va_list   args;
@@ -87,7 +87,7 @@ u_char *ngx_vslprintf(u_char *buf, u_char *last,const char *fmt,va_list args)
                 width = width * 10 + (*fmt++ - '0');
             }
 
-            for ( ;; ) //一些特殊的格式，我们做一些特殊的标记【给一些变量特殊值等等】
+            for ( ;; )
             {
                 switch (*fmt)  //处理一些%之后的特殊字符
                 {
@@ -239,9 +239,7 @@ u_char *ngx_vslprintf(u_char *buf, u_char *last,const char *fmt,va_list args)
                 fmt++;
                 continue;  //重新从while开始执行
 
-            //..................................
-            //................其他格式符，逐步完善
-            //..................................
+
 
             default:
                 *buf++ = *fmt++; //往下移动一个字符
@@ -315,7 +313,7 @@ static u_char * ngx_sprintf_num(u_char *buf, u_char *last, uint64_t ui64, u_char
         //比如我显示一个1,234,567【十进制数】，他对应的二进制数实际是 12 D687 ，那怎么显示出这个12D687来呢？
         do 
         {            
-            //0xf就是二进制的1111,大家都学习过位运算，ui64 & 0xf，就等于把 一个数的最末尾的4个二进制位拿出来；
+            //0xf就是二进制的1111,记性位运算，ui64 & 0xf，就等于把 一个数的最末尾的4个二进制位拿出来；
             //ui64 & 0xf  其实就能分别得到 这个16进制数也就是 7,8,6,D,2,1这个数字，转成 (uint32_t) ，然后以这个为hex的下标，找到这几个数字的对应的能够显示的字符；
             *--p = hex[(uint32_t) (ui64 & 0xf)];    
         } while (ui64 >>= 4);    //ui64 >>= 4     --->   ui64 = ui64 >> 4 ,而ui64 >> 4是啥，实际上就是右移4位，就是除以16,因为右移4位就等于移动了1111；

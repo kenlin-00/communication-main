@@ -31,9 +31,9 @@
 
 //进程相关----------------------
 //标记当前进程类型
-#define NGX_PROCESS_MASTER     0  //master进程，管理进程
-#define NGX_PROCESS_WORKER     1  //worker进程，工作进程
-//.......其他待扩展
+#define NGX_PROCESS_MASTER     0  
+#define NGX_PROCESS_WORKER     1  
+
 
 
 #endif

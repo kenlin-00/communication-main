@@ -1,5 +1,4 @@
-﻿
-//和网络 有关的函数放这里
+﻿//和网络 有关的函数放这里
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,7 +36,7 @@ CSocekt::CSocekt()
     //m_pread_events = NULL;       //读事件数组给空
     //m_pwrite_events = NULL;      //写事件数组给空
 
-    //一些和网络通讯有关的常用变量值，供后续频繁使用时提高效率
+    //一些和网络通讯有关的常用变量值
     m_iLenPkgHeader = sizeof(COMM_PKG_HEADER);    //包头的sizeof值【占用的字节数】
     m_iLenMsgHeader =  sizeof(STRUC_MSG_HEADER);  //消息头的sizeof值【占用的字节数】
 
@@ -50,7 +49,7 @@ CSocekt::CSocekt()
     return;	
 }
 
-//初始化函数【fork()子进程之前干这个事】
+//初始化函数
 //成功返回true，失败返回false
 bool CSocekt::Initialize()
 {
@@ -128,7 +127,7 @@ CSocekt::~CSocekt()
 void CSocekt::Shutdown_subproc()
 {
 
-    if(sem_post(&m_semEventSendQueue)==-1)  //让ServerSendQueueThread()流程走下来干活
+    if(sem_post(&m_semEventSendQueue)==-1)  
     {
          ngx_log_stderr(0,"CSocekt::Shutdown_subproc()中sem_post(&m_semEventSendQueue)失败.");
     }

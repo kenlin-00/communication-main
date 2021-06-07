@@ -117,9 +117,7 @@ static void ngx_signal_handler(int signo, siginfo_t *siginfo, void *ucontext)
     }
     else if(ngx_process == NGX_PROCESS_WORKER) //worker进程，具体干活的进程，处理的信号相对比较少
     {
-        //worker进程的往这里走
-        //......以后再增加
-        //....
+
     }
     else
     {
@@ -172,19 +170,19 @@ static void ngx_process_get_status(void)
         //-------------------------------
         if(pid == -1)//这表示这个waitpid调用有错误，有错误也理解返回出去，我们管不了这么多
         {
-            //这里处理代码抄自官方nginx，主要目的是打印一些日志。考虑到这些代码也许比较成熟，所以，就基本保持原样照抄吧；
+            
             err = errno;
             if(err == EINTR)           //调用被某个信号中断
             {
                 continue;
             }
 
-            if(err == ECHILD  && one)  //没有子进程
+            if(err == ECHILD  && one)  
             {
                 return;
             }
 
-            if (err == ECHILD)         //没有子进程
+            if (err == ECHILD)         
             {
                 ngx_log_error_core(NGX_LOG_INFO,err,"waitpid() failed!");
                 return;
