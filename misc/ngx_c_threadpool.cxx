@@ -40,7 +40,7 @@ void CThreadPool::clearMsgRecvQueue()
 	char * sTmpMempoint;
 	CMemory *p_memory = CMemory::GetInstance();
 
-	//尾声阶段，需要互斥？该退的都退出了，该停止的都停止了，应该不需要退出了
+	
 	while(!m_MsgRecvQueue.empty())
 	{
 		sTmpMempoint = m_MsgRecvQueue.front();		
@@ -150,7 +150,7 @@ void* CThreadPool::ThreadFunc(void* threadData)
         //if(!m_shutdown)  //如果这个条件成立，表示肯定是拿到了真正消息队列中的数据，要去干活了，干活，则表示正在运行的线程数量要增加1；
         //    ++m_iRunningThreadNum; //因为这里是互斥的，所以这个+是OK的；
 
-        //走到这里时刻，互斥量肯定是锁着的。。。。。。
+
 
         //先判断线程退出这个条件
         if(m_shutdown)
@@ -164,7 +164,7 @@ void* CThreadPool::ThreadFunc(void* threadData)
         pThreadPoolObj->m_MsgRecvQueue.pop_front();                //移除第一个元素但不返回	
         --pThreadPoolObj->m_iRecvMsgQueueCount;                    //收消息队列数字-1
                
-        //可以解锁互斥量了
+
         err = pthread_mutex_unlock(&m_pthreadMutex); 
         if(err != 0)  ngx_log_stderr(err,"CThreadPool::ThreadFunc()中pthread_mutex_unlock()失败，返回的错误码为%d!",err);//有问题，要及时报告
         
@@ -186,7 +186,7 @@ void* CThreadPool::ThreadFunc(void* threadData)
     return (void*)0;
 }
 
-//停止所有线程【等待结束线程池中所有线程，该函数返回后，应该是所有线程池中线程都结束了】
+//停止所有线程
 void CThreadPool::StopAll() 
 {
     //(1)已经调用过，就不要重复调用了

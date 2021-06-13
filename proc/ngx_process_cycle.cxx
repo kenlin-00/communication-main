@@ -1,9 +1,4 @@
 ﻿//和开启子进程相关
-/*
-公众号：程序员速成     q群：716480601
-王健伟老师 《Linux C++通讯架构实战》
-商业级质量的代码，完整的项目，帮你提薪至少10K
-*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -52,7 +47,7 @@ void ngx_master_process_cycle()
     }
     //即便sigprocmask失败，程序流程 也继续往下走
 
-    //首先我设置主进程标题---------begin
+    
     size_t size;
     int    i;
     size = sizeof(master_process);  //注意我这里用的是sizeof，所以字符串末尾的\0是被计算进来了的
@@ -69,7 +64,7 @@ void ngx_master_process_cycle()
         ngx_setproctitle(title); //设置标题
         ngx_log_error_core(NGX_LOG_NOTICE,0,"%s %P 【master进程】启动并开始运行......!",title,ngx_pid); //设置标题时顺便记录下来进程名，进程id等信息到日志
     }    
-    //首先我设置主进程标题---------end
+   
         
     //从配置文件中读取要创建的worker进程数量
     CConfig *p_config = CConfig::GetInstance(); //单例类
@@ -206,7 +201,7 @@ static void ngx_worker_process_init(int inum)
     //g_socket.ngx_epoll_listenportstart();//往监听socket上增加监听事件，从而开始让监听端口履行其职责【如果不加这行，虽然端口能连上，但不会触发ngx_epoll_process_events()里边的epoll_wait()往下走】
     
     
-    //....将来再扩充代码
-    //....
+
+
     return;
 }
