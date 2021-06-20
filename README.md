@@ -38,7 +38,9 @@
 		- [如何快速从该连接池中找到一个空闲连接分配给套接字](#如何快速从该连接池中找到一个空闲连接分配给套接字)
 		- [解决TCP粘包问题](#解决tcp粘包问题)
 		- [收包流程](#收包流程)
-		- [使用多线程解析和处理数据包](#使用多线程解析和处理数据包)
+	- [使用多线程解析和处理数据包](#使用多线程解析和处理数据包)
+		- [项目中给互斥量加锁](#项目中给互斥量加锁)
+		- [实现消息出消息队列](#实现消息出消息队列)
 	- [站在巨人的肩膀上](#站在巨人的肩膀上)
 
 <!-- /TOC -->
@@ -330,9 +332,39 @@ int strcasecmp (const char *s1, const char *s2);
 
 到目前为止整个收包流程就完成了。
 
-### 使用多线程解析和处理数据包
+## 使用多线程解析和处理数据包
 
 将接收的数据包放在接收消息队列中，然后对这些数据包进行解析。具体实现见`ngx_c_socket.cxx`和`ngx_c_socket.h`
+
+### 项目中给互斥量加锁
+
+在项目中，写了一个自动加锁和解锁的类 CLock，在文件 `ngx_c_lockmutex.h`中，然后可以通过这个类实现对 `m_recvMessageQueueMutex`进行加解锁了.
+
+```cpp
+CLock lock(&m_recvMessageQueueMutex);
+```
+
+### 实现消息出消息队列
+
+```cpp
+//从消息队列中把一个消息提取出来
+char *CSocekt::outMsgRecvQueue() {
+    //加锁互斥
+    CLock lock(&m_recvMessageQueueMutex);
+    //判断消息队列是否为空
+    if(m_MsgRecvQueue.empty())
+    {
+        return NULL;
+    }
+    //返回消息队列的第一个消息
+    char *sTmpMsgBuf = m_MsgRecvQueue.front();
+    //移除第一个元素
+    m_MsgRecvQueue.pop_front();  //list容器
+    //收消息队列数字 -1
+    --m_iRecvMsgQueueCount;
+    return sTmpMsgBuf;
+}
+```
 
 ## 站在巨人的肩膀上
 

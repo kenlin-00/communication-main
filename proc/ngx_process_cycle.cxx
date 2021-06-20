@@ -78,8 +78,7 @@ void ngx_master_process_cycle()
     {
 
  
-        sigsuspend(&set); //阻塞在这里，等待一个信号，此时进程是挂起的，不占用cpu时间，只有收到信号才会被唤醒（返回）；
-                         //此时master进程完全靠信号驱动干活    
+        sigsuspend(&set);   
 
 //        printf("执行到sigsuspend()下边来了\n");
         
@@ -120,7 +119,7 @@ static int ngx_spawn_process(int inum,const char *pprocname)
     case 0:  //子进程分支
         ngx_parent = ngx_pid;              //因为是子进程了，所有原来的pid变成了父pid
         ngx_pid = getpid();                //重新获取pid,即本子进程的pid
-        ngx_worker_process_cycle(inum,pprocname);    //我希望所有worker子进程，在这个函数里不断循环着不出来，也就是说，子进程流程不往下边走;
+        ngx_worker_process_cycle(inum,pprocname);    
         break;
 
     default: //这个应该是父进程分支，直接break;，流程往switch之后走            
@@ -196,7 +195,6 @@ static void ngx_worker_process_init(int inum)
         exit(-2);
     }
     
-    //如下这些代码参照官方nginx里的ngx_event_process_init()函数中的代码
     g_socket.ngx_epoll_init();           //初始化epoll相关内容，同时 往监听socket上增加监听事件，从而开始让监听端口履行其职责
     //g_socket.ngx_epoll_listenportstart();//往监听socket上增加监听事件，从而开始让监听端口履行其职责【如果不加这行，虽然端口能连上，但不会触发ngx_epoll_process_events()里边的epoll_wait()往下走】
     

@@ -16,6 +16,6 @@ void ngx_process_events_and_timers()
 {
     g_socket.ngx_epoll_process_events(-1); //-1表示卡着等待吧
 
-    //...再完善
+ 
 }
 

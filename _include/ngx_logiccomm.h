@@ -10,7 +10,7 @@
 
 
 
-//结构定义------------------------------------
+
 #pragma pack (1) 
 
 typedef struct _STRUCT_REGISTER

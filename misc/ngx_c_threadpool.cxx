@@ -130,8 +130,6 @@ void* CThreadPool::ThreadFunc(void* threadData)
         {
             //消息队列为空，并且不要求退出，则
             //pthread_cond_wait()阻塞调用线程直到指定的条件有信号（signaled）。
-                //该函数应该在互斥量锁定时调用，当在等待时会自动解锁互斥量【这是重点】。在信号被发送，线程被激活后，互斥量会自动被锁定，当线程结束时，由程序员负责解锁互斥量。  
-                  //说白了，某个地方调用了pthread_cond_signal(&m_pthreadCond);，这个pthread_cond_wait就会走下来；
 
             ngx_log_stderr(0,"--------------即将调用pthread_cond_wait,tid=%d--------------",tid);
 
@@ -147,7 +145,7 @@ void* CThreadPool::ThreadFunc(void* threadData)
             ngx_log_stderr(0,"--------------调用pthread_cond_wait完毕,tid=%d--------------",tid);
         }
         */
-        //if(!m_shutdown)  //如果这个条件成立，表示肯定是拿到了真正消息队列中的数据，要去干活了，干活，则表示正在运行的线程数量要增加1；
+        //if(!m_shutdown) 
         //    ++m_iRunningThreadNum; //因为这里是互斥的，所以这个+是OK的；
 
 

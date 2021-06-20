@@ -14,7 +14,6 @@ BUILD_DIR = $(BUILD_ROOT)/signal/ \
 			$(BUILD_ROOT)/logic/   \
 			$(BUILD_ROOT)/app/ 
 
-#编译时是否生成调试信息。GNU调试器可以利用该信息
-#很多调试工具，包括Valgrind工具集都会因为这个为true能够输出更多的调试信息；
+
 export DEBUG = true
 
