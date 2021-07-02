@@ -296,9 +296,9 @@ static u_char * ngx_sprintf_num(u_char *buf, u_char *last, uint64_t ui64, u_char
             do  //这个循环能够把诸如 7654321这个数字保存成：temp[13]=7,temp[14]=6,temp[15]=5,temp[16]=4,temp[17]=3,temp[18]=2,temp[19]=1
                   //而且的包括temp[0..12]以及temp[20]都是不确定的值
             {
-                *--p = (u_char) (ui32 % 10 + '0');  //把屁股后边这个数字拿出来往数组里装，并且是倒着装：屁股后的也往数组下标大的位置装；
+                *--p = (u_char) (ui32 % 10 + '0');  
             }
-            while (ui32 /= 10); //每次缩小10倍等于去掉屁股后边这个数字
+            while (ui32 /= 10); 
         }
         else
         {
@@ -310,20 +310,17 @@ static u_char * ngx_sprintf_num(u_char *buf, u_char *last, uint64_t ui64, u_char
     }
     else if (hexadecimal == 1)  //如果显示一个十六进制数字，格式符为：%xd，则这个条件成立，要以16进制数字形式显示出来这个十进制数,a-f小写
     {
-        //比如我显示一个1,234,567【十进制数】，他对应的二进制数实际是 12 D687 ，那怎么显示出这个12D687来呢？
+        
         do 
         {            
             //0xf就是二进制的1111,记性位运算，ui64 & 0xf，就等于把 一个数的最末尾的4个二进制位拿出来；
             //ui64 & 0xf  其实就能分别得到 这个16进制数也就是 7,8,6,D,2,1这个数字，转成 (uint32_t) ，然后以这个为hex的下标，找到这几个数字的对应的能够显示的字符；
             *--p = hex[(uint32_t) (ui64 & 0xf)];    
-        } while (ui64 >>= 4);    //ui64 >>= 4     --->   ui64 = ui64 >> 4 ,而ui64 >> 4是啥，实际上就是右移4位，就是除以16,因为右移4位就等于移动了1111；
-                                 //相当于把该16进制数的最末尾一位干掉，原来是 12 D687, >> 4后是 12 D68，如此反复，最终肯定有=0时导致while不成立退出循环
-                                  //比如 1234567 / 16 = 77160(0x12D68) 
-                                  // 77160 / 16 = 4822(0x12D6)
+        } while (ui64 >>= 4);    
     } 
     else // hexadecimal == 2    //如果显示一个十六进制数字，格式符为：%Xd，则这个条件成立，要以16进制数字形式显示出来这个十进制数,A-F大写
     { 
-        //参考else if (hexadecimal == 1)，非常类似
+      
         do 
         { 
             *--p = HEX[(uint32_t) (ui64 & 0xf)];
@@ -332,20 +329,17 @@ static u_char * ngx_sprintf_num(u_char *buf, u_char *last, uint64_t ui64, u_char
 
     len = (temp + NGX_INT64_LEN) - p;  //得到这个数字的宽度，比如 “7654321”这个数字 ,len = 7
 
-    while (len++ < width && buf < last)  //如果你希望显示的宽度是10个宽度【%12f】，而实际想显示的是7654321，只有7个宽度，那么这里要填充5个0进去到末尾，凑够要求的宽度
+    while (len++ < width && buf < last)  
     {
-        *buf++ = zero;  //填充0进去到buffer中（往末尾增加），比如你用格式  
-                                          //ngx_log_stderr(0, "invalid option: %10d\n", 21); 
-                                          //显示的结果是：nginx: invalid option:         21  ---21前面有8个空格，这8个弄个，就是在这里添加进去的；
+        *buf++ = zero;  
     }
     
-    len = (temp + NGX_INT64_LEN) - p; //还原这个len，也就是要显示的数字的实际宽度【因为上边这个while循环改变了len的值】
-    //现在还没把实际的数字比如“7654321”往buf里拷贝呢，要准备拷贝
+    len = (temp + NGX_INT64_LEN) - p; 
 
 
-    if((buf + len) >= last)   //发现如果往buf里拷贝“7654321”后，会导致buf不够长【剩余的空间不够拷贝整个数字】
+    if((buf + len) >= last)   
     {
-        len = last - buf; //剩余的buf有多少我就拷贝多少
+        len = last - buf; 
     }
 
     return ngx_cpymem(buf, p, len); //把最新buf返回去；
