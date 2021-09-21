@@ -63,16 +63,9 @@ void CSocekt::ngx_event_accept(lpngx_connection_t oldc)
             level = NGX_LOG_ALERT;
             if (err == ECONNABORTED)  //ECONNRESET错误则发生在对方意外关闭套接字后【您的主机中的软件放弃了一个已建立的连接--由于超时或者其它失败而中止接连(用户插拔网线就可能有这个错误出现)】
             {
-                //该错误被描述为“software caused connection abort”，即“软件引起的连接中止”。原因在于当服务和客户进程在完成用于 TCP 连接的“三次握手”后，
-                    //客户 TCP 却发送了一个 RST （复位）分节，在服务进程看来，就在该连接已由 TCP 排队，等着服务进程调用 accept 的时候 RST 却到达了。
-                    //POSIX 规定此时的 errno 值必须 ECONNABORTED。源自 Berkeley 的实现完全在内核中处理中止的连接，服务进程将永远不知道该中止的发生。
-                        //服务器进程一般可以忽略该错误，直接再次调用accept。
                 level = NGX_LOG_ERR;
             } 
-            else if (err == EMFILE || err == ENFILE) //EMFILE:进程的fd已用尽【已达到系统所允许单一进程所能打开的文件/套接字总数】。可参考：https://blog.csdn.net/sdn_prc/article/details/28661661   以及 https://bbs.csdn.net/topics/390592927
-                                                        //ulimit -n ,看看文件描述符限制,如果是1024的话，需要改大;  打开的文件句柄数过多 ,把系统的fd软限制和硬限制都抬高.
-                                                    //ENFILE这个errno的存在，表明一定存在system-wide的resource limits，而不仅仅有process-specific的resource limits。按照常识，process-specific的resource limits，一定受限于system-wide的resource limits。
-            {
+            else if (err == EMFILE || err == ENFILE) {
                 level = NGX_LOG_CRIT;
             }
             ngx_log_error_core(level,errno,"CSocekt::ngx_event_accept()中accept4()失败!");
@@ -85,8 +78,7 @@ void CSocekt::ngx_event_accept(lpngx_connection_t oldc)
 
             if (err == ECONNABORTED)  //对方关闭套接字
             {
-                //这个错误因为可以忽略，所以不用干啥
-                //do nothing
+
             }
             
             if (err == EMFILE || err == ENFILE) 

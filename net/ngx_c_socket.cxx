@@ -30,15 +30,15 @@ CSocekt::CSocekt()
     m_RecyConnectionWaitTime = 60; //等待这么些秒后才回收连接
 
     //epoll相关
-    m_epollhandle = -1;          //epoll返回的句柄
-    //m_pconnections = NULL;       //连接池【连接数组】先给空
-    //m_pfree_connections = NULL;  //连接池中空闲的连接链 
-    //m_pread_events = NULL;       //读事件数组给空
-    //m_pwrite_events = NULL;      //写事件数组给空
+    m_epollhandle = -1;         
+    //m_pconnections = NULL;       
+    //m_pfree_connections = NULL;  
+    //m_pread_events = NULL;      
+    //m_pwrite_events = NULL;     
 
     //一些和网络通讯有关的常用变量值
-    m_iLenPkgHeader = sizeof(COMM_PKG_HEADER);    //包头的sizeof值【占用的字节数】
-    m_iLenMsgHeader =  sizeof(STRUC_MSG_HEADER);  //消息头的sizeof值【占用的字节数】
+    m_iLenPkgHeader = sizeof(COMM_PKG_HEADER);    
+    m_iLenMsgHeader =  sizeof(STRUC_MSG_HEADER);  
 
     //多线程相关
     //pthread_mutex_init(&m_recvMessageQueueMutex, NULL); //互斥量初始化    

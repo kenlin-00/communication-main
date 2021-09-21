@@ -58,7 +58,7 @@ void ngx_connection_s::PutOneToFree()
         CMemory::GetInstance()->FreeMemory(precvMemPointer);
         precvMemPointer = NULL;        
     }
-    if(psendMemPointer != NULL) //如果发送数据的缓冲区里有内容，则要释放内存
+    if(psendMemPointer != NULL) 
     {
         CMemory::GetInstance()->FreeMemory(psendMemPointer);
         psendMemPointer = NULL;

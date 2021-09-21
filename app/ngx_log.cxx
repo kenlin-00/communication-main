@@ -16,7 +16,7 @@
 #include "ngx_func.h"
 #include "ngx_c_conf.h"
 
-//全局量---------------------
+
 //错误等级，和ngx_macro.h里定义的日志等级宏是一一对应关系
 static u_char err_levels[][20]  = 
 {

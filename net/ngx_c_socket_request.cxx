@@ -35,7 +35,7 @@ void CSocekt::ngx_read_request_handler(lpngx_connection_t pConn)
     //走到这里，说明成功收到了一些字节（>0），就要开始判断收到了多少数据了     
     if(pConn->curStat == _PKG_HD_INIT) //连接建立起来时肯定是这个状态，因为在ngx_get_connection()中已经把curStat成员赋值成_PKG_HD_INIT了
     {        
-        if(reco == m_iLenPkgHeader)//正好收到完整包头，这里拆解包头
+        if(reco == m_iLenPkgHeader)
         {   
             ngx_wait_request_handler_proc_p1(pConn); //那就调用专门针对包头处理完整的函数去处理把。
         }

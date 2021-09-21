@@ -5,7 +5,7 @@
 #include <string.h>
 #include <vector>
 
-//自定义头文件放下边,因为g++中用了-I参数，所以这里用<>也可以
+
 #include "ngx_func.h"     //函数声明
 #include "ngx_c_conf.h"   //和配置文件处理相关的类,名字带c_表示和类有关
 
