@@ -168,7 +168,7 @@ static void ngx_process_get_status(void)
             return;
         } //end if(pid == 0)
         //-------------------------------
-        if(pid == -1)//这表示这个waitpid调用有错误，有错误也理解返回出去，我们管不了这么多
+        if(pid == -1)
         {
             
             err = errno;

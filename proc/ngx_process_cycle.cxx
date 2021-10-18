@@ -11,16 +11,16 @@
 #include "ngx_macro.h"
 #include "ngx_c_conf.h"
 
-//函数声明
+
 static void ngx_start_worker_processes(int threadnums);
 static int ngx_spawn_process(int threadnums,const char *pprocname);
 static void ngx_worker_process_cycle(int inum,const char *pprocname);
 static void ngx_worker_process_init(int inum);
 
-//变量声明
+
 static u_char  master_process[] = "master process";
 
-//描述：创建worker子进程
+
 void ngx_master_process_cycle()
 {    
     sigset_t set;        //信号集

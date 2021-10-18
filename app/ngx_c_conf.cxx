@@ -43,7 +43,6 @@ bool CConfig::Load(const char *pconfName)
     //走到这里，文件打开成功 
     while(!feof(fp))  //检查文件是否结束 ，没有结束则条件成立
     {    
-        //大家要注意老师的写法，注意写法的严密性，商业代码，就是要首先确保代码的严密性
         if(fgets(linebuf,500,fp) == NULL) //从文件中读数据，每次读一行，一行最多不要超过500个字符 
             continue;
 
@@ -88,7 +87,7 @@ bool CConfig::Load(const char *pconfName)
         } //end if
     } //end while(!feof(fp)) 
 
-    fclose(fp); //这步不可忘记
+    fclose(fp);
     return true;
 }
 

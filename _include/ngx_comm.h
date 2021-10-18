@@ -2,7 +2,7 @@
 #ifndef __NGX_COMM_H__
 #define __NGX_COMM_H__
 
-//宏定义------------------------------------
+
 #define _PKG_MAX_LENGTH     30000 
 
 //通信 收包状态定义
