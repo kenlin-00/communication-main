@@ -106,7 +106,7 @@ void CSocekt::clearconnection()
 //从连接池中获取一个空闲连接
 lpngx_connection_t CSocekt::ngx_get_connection(int isock)
 {
-    //因为可能有其他线程要访问m_freeconnectionList，m_connectionList【比如可能有专门的释放线程要释放/或者主线程要释放】之类的，所以应该临界一下
+   
     CLock lock(&m_connectionMutex);  
 
     if(!m_freeconnectionList.empty())

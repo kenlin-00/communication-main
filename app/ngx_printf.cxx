@@ -243,7 +243,7 @@ u_char *ngx_vslprintf(u_char *buf, u_char *last,const char *fmt,va_list args)
 
             default:
                 *buf++ = *fmt++; //往下移动一个字符
-                continue; //注意这里不break，而是continue;而这个continue其实是continue到外层的while去了，也就是流程重新从while开头开始执行;
+                continue;
             } //end switch (*fmt) 
             
 

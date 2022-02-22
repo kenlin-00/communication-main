@@ -61,7 +61,7 @@ void CSocekt::ngx_event_accept(lpngx_connection_t oldc)
                 return ;
             } 
             level = NGX_LOG_ALERT;
-            if (err == ECONNABORTED)  //ECONNRESET错误则发生在对方意外关闭套接字后【您的主机中的软件放弃了一个已建立的连接--由于超时或者其它失败而中止接连(用户插拔网线就可能有这个错误出现)】
+            if (err == ECONNABORTED)  //ECONNRESET错误则发生在对方意外关闭套接字后
             {
                 level = NGX_LOG_ERR;
             } 
@@ -70,7 +70,7 @@ void CSocekt::ngx_event_accept(lpngx_connection_t oldc)
             }
             ngx_log_error_core(level,errno,"CSocekt::ngx_event_accept()中accept4()失败!");
 
-            if(use_accept4 && err == ENOSYS) //accept4()函数没实现，坑爹？
+            if(use_accept4 && err == ENOSYS) //accept4()函数没实现
             {
                 use_accept4 = 0;  //标记不使用accept4()函数，改用accept()函数
                 continue;         //回去重新用accept()函数搞
@@ -113,17 +113,17 @@ void CSocekt::ngx_event_accept(lpngx_connection_t oldc)
 
         if(!use_accept4)
         {
-            //如果不是用accept4()取得的socket，那么就要设置为非阻塞【因为用accept4()的已经被accept4()设置为非阻塞了】
+            //如果不是用accept4()取得的socket，那么就要设置为非阻塞
             if(setnonblocking(s) == false)
             {
                 //设置非阻塞居然失败
-                ngx_close_connection(newc); //关闭socket,这种可以立即回收这个连接，无需延迟，因为其上还没有数据收发，谈不到业务逻辑因此无需延迟；
+                ngx_close_connection(newc); //关闭socket
                 return; //直接返回
             }
         }
 
-        newc->listening = oldc->listening;                    //连接对象 和监听对象关联，方便通过连接对象找监听对象【关联到监听端口】
-        //newc->w_ready = 1;                                    //标记可以写，新连接写事件肯定是ready的；【从连接池拿出一个连接时这个连接的所有成员都是0】            
+        newc->listening = oldc->listening;                    //连接对象 和监听对象关联，方便通过连接对象找监听对象
+        //newc->w_ready = 1;                                    //标记可以写，新连接写事件肯定是ready的；         
         
         newc->rhandler = &CSocekt::ngx_read_request_handler;  //设置数据来时的读处理函数，其实官方nginx中是ngx_http_wait_request_handler()
         newc->whandler = &CSocekt::ngx_write_request_handler; //设置数据发送时的写处理函数。
